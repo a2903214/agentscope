@@ -336,6 +336,18 @@ class OpenAIChatFormatter(TruncatedFormatterBase):
                         },
                     )
 
+                elif typ == "thinking":
+                    # Thinking is reasoning process, not regular text. OpenAI request
+                    # format has no "thinking" role; omit from request and do not
+                    # merge into text. Log for debugging.
+                    thinking_text = block.get("thinking") or block.get("text") or ""
+                    if thinking_text.strip():
+                        snippet = thinking_text.strip()
+                        if len(snippet) > 800:
+                            snippet = snippet[:800] + "..."
+                        logger.info("thinging block [%s]: %s", msg.name, snippet)
+                    continue
+
                 else:
                     logger.warning(
                         "Unsupported block type %s in the message, skipped.",
